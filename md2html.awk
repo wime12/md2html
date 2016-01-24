@@ -246,7 +246,7 @@ BEGIN {
 !html && /^<(address|blockquote|center|dir|div|dl|fieldset|form|h[1-6r]|\
 isindex|menu|noframes|noscript|ol|p|pre|table|ul|!--)/ {
     if (code) {
-	oprint("</pre></code>");
+	oprint("</code></pre>");
 	blank_lines = 0;
     }
     for(; !text && block[nl] == "blockquote"; nl--)
@@ -299,7 +299,7 @@ nnl < nl && !blank && text && ! /^ ? ? ?([*+-]|([0-9]+\.)+)( +|	)/ { nnl = nl; }
 
 (blank || (!text && !code)) && /^ ? ? ?([-*_][ 	]*)([-*_][ 	]*)([-*_][ 	]*)+$/ {
     if (code) {
-	oprint("</pre></code>");
+	oprint("</code></code>");
 	blank_lines = 0;
 	code = 0;
     }
@@ -350,7 +350,7 @@ blank && ! /^$/ {
 # Close old blocks and open new ones
 nnl != nl || nblock[nl] != block[nl] {
     if (code) {
-	oprint("</pre></code>");
+	oprint("</code></pre>");
 	blank_lines = 0;
 	code = 0;
     }
@@ -391,18 +391,21 @@ code && /^$/ {
 !text && sub(/^(	|    )/, "") {
     for (; blank_lines > 0; blank_lines--) oprint("");
     blank = 0;
+    $0 = eschtml($0);
     if (!code) {
-	oprint("<code><pre>");
+	oprint("<pre><code>" $0);
 	blank_lines = 0;
+    } else if ($0 ~ /^[ \t]*$/) {
+	blank_lines++;
+    } else {
+    	oprint($0);
     }
     code = 1;
-    $0 = eschtml($0);
-    oprint($0);
     next;
 }
 
 code {
-    oprint("</pre></code>");
+    oprint("</code></pre>");
     blank_lines = 0;
     code = 0;
 }
@@ -430,7 +433,7 @@ text && /^-+$/ { printp("h2"); next; }
 
 END {
     if (code) {
-	oprint("</pre></code>");
+	oprint("</code></pre>");
 	code = 0;
     }
     printp(par);
