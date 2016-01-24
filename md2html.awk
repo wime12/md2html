@@ -1,4 +1,4 @@
-#!/bin/awk -f
+#!/usr/bin/awk -f
 # by yy; yiyu.jgl@gmail.com
 # for more info, see http://www.anarchyinthetubes.com/src/md2html.awk
 
