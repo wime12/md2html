@@ -214,6 +214,7 @@ function printp(tag) {
 }
 
 BEGIN {
+    NF = "";
     blank = 0;
     code = 0;
     hr = 0;
