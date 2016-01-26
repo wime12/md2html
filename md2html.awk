@@ -246,10 +246,7 @@ BEGIN {
 # html
 !html && /^<(address|blockquote|center|dir|div|dl|fieldset|form|h[1-6r]|\
 isindex|menu|noframes|noscript|ol|p|pre|table|ul|!--)/ {
-    if (code) {
-	oprint("</code></pre>");
-	blank_lines = 0;
-    }
+    if (code) end_code_block();
     for(; !text && block[nl] == "blockquote"; nl--)
 	oprint("</blockquote>");
     match($0, /^<(address|blockquote|center|dir|div|dl|fieldset|form|h[1-6r]|\
@@ -299,11 +296,7 @@ nnl < nl && !blank && text && ! /^ ? ? ?([*+-]|([0-9]+\.)+)( +|	)/ { nnl = nl; }
 { hr = 0; }
 
 (blank || (!text && !code)) && /^ ? ? ?([-*_][ 	]*)([-*_][ 	]*)([-*_][ 	]*)+$/ {
-    if (code) {
-	oprint("</code></code>");
-	blank_lines = 0;
-	code = 0;
-    }
+    if (code) end_code_block();
     blank = 0;
     nnl = 0;
     hr = 1;
@@ -350,11 +343,7 @@ blank && ! /^$/ {
 
 # Close old blocks and open new ones
 nnl != nl || nblock[nl] != block[nl] {
-    if (code) {
-	oprint("</code></pre>");
-	blank_lines = 0;
-	code = 0;
-    }
+    if (code) end_code_block();
     printp(par);
     b = (nnl > nl) ? nblock[nnl] : block[nnl];
     par = (match(b, /[ou]l/)) ? "" : "p";
@@ -383,6 +372,13 @@ hr {
 }
 
 # Code blocks
+
+function end_code_block() {
+    oprint("</code></pre>");
+    blank_lines = 0;
+    code = 0;
+}
+
 code && /^$/ {
     blank_lines++;
     blank = 1;
@@ -405,11 +401,7 @@ code && /^$/ {
     next;
 }
 
-code {
-    oprint("</code></pre>");
-    blank_lines = 0;
-    code = 0;
-}
+code { end_code_block(); }
 
 # Setex-style Headers
 text && /^=+$/ { printp("h1"); next; }
