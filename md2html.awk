@@ -425,10 +425,7 @@ text && /^-+$/ { printp("h2"); next; }
 { text = (text ? text " " : "") $0; }
 
 END {
-    if (code) {
-	oprint("</code></pre>");
-	code = 0;
-    }
+    if (code) end_code_block();
     printp(par);
     for(; nl > 0; nl--) {
 	if (match(block[nl], /[ou]l/))
